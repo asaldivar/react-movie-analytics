@@ -1,0 +1,5 @@
+module.exports = {
+  ADD_MOVIE: 'ADD_MOVIE',
+  REMOVE_MOVIE: 'REMOVE_MOVIE',
+  SHOW_MOVIE: 'SHOW_MOVIE'
+}
