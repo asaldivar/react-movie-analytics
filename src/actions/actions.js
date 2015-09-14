@@ -19,6 +19,12 @@ var Actions = {
       actionType: Constants.SHOW_MOVIE,
       movie: movie
     })
+  },
+  addToAnalytics: function(movie) {
+    Dispatcher.handleViewAction({
+      actionType: Constants.ADD_TO_ANALYTICS,
+      movie: movie
+    })
   }
 }
 

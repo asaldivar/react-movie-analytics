@@ -3,8 +3,9 @@ var Constants = require('../constants/constants');
 var assign = require('react/lib/Object.assign')
 var EventEmitter = require('events').EventEmitter;
 
-var movies = [];
-var currentMovie = {};
+var movies = []
+var currentMovie = {}
+var analyticsCollection = []
 
 function addMovie(movie) {
   movies.push(movie)
@@ -16,6 +17,15 @@ function removeMovie(index) {
 
 function viewMovieDetails(movie) {
   currentMovie = movie
+}
+
+function addToAnalyticsCollection(movie) {
+  var movieData = {
+    name: movie.Title,
+    y: parseInt(movie.imdbRating),
+    drilldown: movie.Title
+  }
+  analyticsCollection.push(movieData)
 }
 
 var Store = assign(EventEmitter.prototype, {
@@ -39,6 +49,10 @@ var Store = assign(EventEmitter.prototype, {
     return movies
   },
 
+  getAnalyticsCollection: function() {
+    return analyticsCollection
+  },
+
   dispatcherIndex: Dispatcher.register(function(payload) {
     var action = payload.action
 
@@ -53,6 +67,11 @@ var Store = assign(EventEmitter.prototype, {
 
       case Constants.SHOW_MOVIE:
         viewMovieDetails(action.movie)
+        break
+
+      case Constants.ADD_TO_ANALYTICS:
+        addToAnalyticsCollection(action.movie)
+        break
     }
     Store.emitChange()
 
