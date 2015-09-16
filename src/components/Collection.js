@@ -5,6 +5,7 @@ var Store = require('../stores/store')
 
 var Collection = React.createClass({
   getInitialState: function() {
+    console.log('rendering Collection')
     return {
       movies: Store.getCollection()
     }

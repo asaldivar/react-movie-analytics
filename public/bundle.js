@@ -23645,20 +23645,34 @@
 	var Search = __webpack_require__(206);
 	var MovieDetails = __webpack_require__(208);
 
+	function getMovie() {
+	  return {
+	    movie: Store.getMovie()
+	  };
+	}
+
 	var MovieSearch = React.createClass({
 	  displayName: 'MovieSearch',
 
 	  getInitalState: function getInitalState() {
-	    return {
-	      movie: {}
-	    };
+	    return getMovie();
 	  },
 
+	  // component needs to be aware of changes
 	  componentWillMount: function componentWillMount() {
 	    // we have to give the functions context so they can manipulate the state of this component
-	    Store.addChangeListener((function () {
-	      this.setState({ movie: Store.getMovie() });
-	    }).bind(this));
+	    console.log('listen for event');
+	    Store.addChangeListener(this._onChange);
+	  },
+
+	  // need this prevent memory leak
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this._onChange);
+	  },
+
+	  _onChange: function _onChange() {
+	    console.log('an event was emitted, let me update my state');
+	    this.setState(getMovie());
 	  },
 
 	  render: function render() {
@@ -23709,6 +23723,7 @@
 	  analyticsCollection.push(movieData);
 	}
 
+	// allows our Views/Components to update based upon those events.
 	var Store = assign(EventEmitter.prototype, {
 	  emitChange: function emitChange() {
 	    this.emit('change'); // EventEmitter's event method
@@ -23732,32 +23747,35 @@
 
 	  getAnalyticsCollection: function getAnalyticsCollection() {
 	    return analyticsCollection;
-	  },
+	  }
+	});
 
-	  dispatcherIndex: Dispatcher.register(function (payload) {
-	    var action = payload.action;
+	// register with Dispatcher to listen for broadcasts
+	Dispatcher.register(function (payload) {
+	  var action = payload.action;
 
-	    switch (action.actionType) {
-	      case Constants.ADD_MOVIE:
-	        addMovie(action.movie);
-	        break;
+	  switch (action.actionType) {
+	    case Constants.ADD_MOVIE:
+	      addMovie(action.movie);
+	      break;
 
-	      case Constants.REMOVE_MOVIE:
-	        removeMovie(action.index);
-	        break;
+	    case Constants.REMOVE_MOVIE:
+	      removeMovie(action.index);
+	      break;
 
-	      case Constants.SHOW_MOVIE:
-	        viewMovieDetails(action.movie);
-	        break;
+	    case Constants.SHOW_MOVIE:
+	      console.log('in store in SHOW_MOVIE');
+	      viewMovieDetails(action.movie);
+	      break;
 
-	      case Constants.ADD_TO_ANALYTICS:
-	        addToAnalyticsCollection(action.movie);
-	        break;
-	    }
-	    Store.emitChange();
+	    case Constants.ADD_TO_ANALYTICS:
+	      addToAnalyticsCollection(action.movie);
+	      break;
+	  }
+	  console.log('emit event change');
+	  Store.emitChange();
 
-	    return true; // resolve dispatcher so it can move on to next action
-	  })
+	  return true; // resolve dispatcher so it can move on to next action
 	});
 
 	module.exports = Store;
@@ -23773,6 +23791,7 @@
 
 	var AppDispatcher = assign(new Dispatcher(), {
 	  handleViewAction: function handleViewAction(action) {
+	    console.log('in dispatcher, actions is:', action);
 	    this.dispatch({
 	      source: 'VIEW-ACTION',
 	      action: action
@@ -24433,6 +24452,7 @@
 	      if (response.status !== 200) return Promise.reject('Falied to get movie.');
 
 	      response.json().then(function (data) {
+	        console.log('fire action setCurrentMovie');
 	        Actions.setCurrentMovie(data);
 	      });
 	    });
@@ -24482,6 +24502,7 @@
 	    });
 	  },
 	  setCurrentMovie: function setCurrentMovie(movie) {
+	    console.log('in action setCurrentMovie');
 	    Dispatcher.handleViewAction({
 	      actionType: Constants.SHOW_MOVIE,
 	      movie: movie
@@ -24512,12 +24533,6 @@
 
 	  render: function render() {
 	    var movie = this.props.movie;
-
-	    var posterStyle = {
-	      backgroundImage: 'url(' + movie.Poster + ')',
-	      backgroundSize: 'cover',
-	      height: '200px'
-	    };
 
 	    return React.createElement(
 	      'div',
@@ -24634,6 +24649,7 @@
 	  displayName: 'Collection',
 
 	  getInitialState: function getInitialState() {
+	    console.log('rendering Collection');
 	    return {
 	      movies: Store.getCollection()
 	    };
@@ -24719,14 +24735,19 @@
 	    var movies = Store.getAnalyticsCollection();
 
 	    var config = {
-	      xAxis: {
-	        type: 'category'
+	      title: {
+	        text: 'Movie Ratings'
+	      },
+	      yAxis: {
+	        title: {
+	          text: 'IMDB Ratings'
+	        }
 	      },
 	      chart: {
 	        type: 'column'
 	      },
 	      series: [{
-	        name: 'Brands',
+	        name: 'Movies',
 	        colorByPoint: true,
 	        data: movies
 	      }]

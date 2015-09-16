@@ -6,12 +6,6 @@ var MovieDetails = React.createClass({
   render: function() {
     var movie = this.props.movie
 
-    var posterStyle = {
-      backgroundImage: 'url(' + movie.Poster + ')',
-      backgroundSize: 'cover',
-      height: '200px'
-    }
-
     return (
       <div>
         <h3>{movie.Title}</h3>

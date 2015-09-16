@@ -8,14 +8,19 @@ var Analytics = React.createClass({
     var movies = Store.getAnalyticsCollection()
 
     var config = {
-      xAxis: {
-          type: 'category'
+      title: {
+        text: 'Movie Ratings'
+      },
+      yAxis: {
+        title: {
+          text: 'IMDB Ratings'
+        }
       },
       chart: {
           type: 'column'
       },
       series: [{
-        name: 'Brands',
+        name: 'Movies',
         colorByPoint: true,
         data: movies
       }]

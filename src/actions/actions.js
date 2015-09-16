@@ -15,6 +15,7 @@ var Actions = {
     })
   },
   setCurrentMovie: function(movie) {
+    console.log('in action setCurrentMovie')
     Dispatcher.handleViewAction({
       actionType: Constants.SHOW_MOVIE,
       movie: movie

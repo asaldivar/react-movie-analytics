@@ -28,6 +28,7 @@ function addToAnalyticsCollection(movie) {
   analyticsCollection.push(movieData)
 }
 
+// allows our Views/Components to update based upon those events.
 var Store = assign(EventEmitter.prototype, {
   emitChange: function() {
     this.emit('change') // EventEmitter's event method
@@ -51,32 +52,35 @@ var Store = assign(EventEmitter.prototype, {
 
   getAnalyticsCollection: function() {
     return analyticsCollection
-  },
+  }
+})
 
-  dispatcherIndex: Dispatcher.register(function(payload) {
-    var action = payload.action
+// register with Dispatcher to listen for broadcasts
+Dispatcher.register(function(payload) {
+  var action = payload.action
 
-    switch(action.actionType) {
-      case Constants.ADD_MOVIE:
-        addMovie(action.movie)
-        break
+  switch(action.actionType) {
+    case Constants.ADD_MOVIE:
+      addMovie(action.movie)
+      break
 
-      case Constants.REMOVE_MOVIE:
-        removeMovie(action.index)
-        break
+    case Constants.REMOVE_MOVIE:
+      removeMovie(action.index)
+      break
 
-      case Constants.SHOW_MOVIE:
-        viewMovieDetails(action.movie)
-        break
+    case Constants.SHOW_MOVIE:
+      console.log('in store in SHOW_MOVIE')
+      viewMovieDetails(action.movie)
+      break
 
-      case Constants.ADD_TO_ANALYTICS:
-        addToAnalyticsCollection(action.movie)
-        break
-    }
-    Store.emitChange()
+    case Constants.ADD_TO_ANALYTICS:
+      addToAnalyticsCollection(action.movie)
+      break
+  }
+  console.log('emit event change')
+  Store.emitChange()
 
-    return true // resolve dispatcher so it can move on to next action
-  })
+  return true // resolve dispatcher so it can move on to next action
 })
 
 module.exports = Store

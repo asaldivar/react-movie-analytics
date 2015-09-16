@@ -13,6 +13,7 @@ var Search = React.createClass({
       if (response.status !== 200) return Promise.reject('Falied to get movie.')
 
       response.json().then(function(data) {
+        console.log('fire action setCurrentMovie')
         Actions.setCurrentMovie(data)
       })
     })
